@@ -1382,10 +1382,22 @@ SearchParameters.prototype = {
   /**
    * Helper function to get the hierarchicalFacet prefix path or null
    * @param  {object} hierarchicalFacet
-   * @return {string} returns the hierarchicalFacet.prefixPath or null as default
+   * @return {string} returns the hierarchicalFacet.rootPath or null as default
    */
-  _getHierarchicalPrefixPath: function(hierarchicalFacet) {
-    return hierarchicalFacet.prefixPath || null;
+  _getHierarchicalRootPath: function(hierarchicalFacet) {
+    return hierarchicalFacet.rootPath || null;
+  },
+
+  /**
+   * Helper function to check if we show the parent level of the hierarchicalFacet
+   * @param  {object} hierarchicalFacet
+   * @return {string} returns the hierarchicalFacet.showParentLevel or true as default
+   */
+  _getHierarchicalShowParentLevel: function(hierarchicalFacet) {
+    if (hierarchicalFacet.showParentLevel !== undefined) {
+      return hierarchicalFacet.showParentLevel;
+    }
+    return true;
   },
 
   /**

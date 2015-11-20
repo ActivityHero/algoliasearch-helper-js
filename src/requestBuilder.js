@@ -61,6 +61,7 @@ var requestBuilder = {
       .concat(state.disjunctiveFacets)
       .concat(this._getHitsHierarchicalFacetsAttributes(state));
 
+
     var facetFilters = this._getFacetFilters(state);
     var numericFilters = this._getNumericFilters(state);
     var tagFilters = this._getTagFilters(state);
@@ -216,7 +217,9 @@ var requestBuilder = {
 
       var hierarchicalFacet = state.getHierarchicalFacetByName(facetName);
       var separator = state._getHierarchicalFacetSeparator(hierarchicalFacet);
+      var rootPath = state._getHierarchicalRootPath(hierarchicalFacet);
       var attributeToRefine;
+      var attributesIndex;
 
       // we ask for parent facet values only when the `facet` is the current hierarchical facet
       if (facet === facetName) {
@@ -226,13 +229,27 @@ var requestBuilder = {
           return;
         }
 
-        attributeToRefine = hierarchicalFacet.attributes[facetValue.split(separator).length - 2];
+        attributesIndex = facetValue.split(separator).length - 2;
+
+        if (rootPath) {
+          attributesIndex = facetValue.split(separator).length - rootPath.split(separator).length - 2;
+        }
+
+        attributeToRefine = hierarchicalFacet.attributes[attributesIndex];
         facetValue = facetValue.slice(0, facetValue.lastIndexOf(separator));
       } else {
-        attributeToRefine = hierarchicalFacet.attributes[facetValue.split(separator).length - 1];
+        attributesIndex = facetValue.split(separator).length - 1;
+
+        if (rootPath) {
+          attributesIndex = facetValue.split(separator).length - rootPath.split(separator).length - 1;
+        }
+
+        attributeToRefine = hierarchicalFacet.attributes[attributesIndex];
       }
 
-      facetFilters.push([attributeToRefine + ':' + facetValue]);
+      if (attributeToRefine) {
+        facetFilters.push([attributeToRefine + ':' + facetValue]);
+      }
     });
 
     return facetFilters;

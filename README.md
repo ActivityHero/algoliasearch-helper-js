@@ -514,6 +514,22 @@ helper.toggleRefine('categories.lvl0', 'fruits');
 
 ```
 
+##### Hide parent level of current parent level
+
+By default the hierarchical facet is going to return the last level under the current refinement and his
+parent level to have some context.
+
+If you do not want this parent level you can set showParentLevel to false
+
+````
+var helper = algoliasearchHelper(client, indexName, {
+  hierarchicalFacets: [{
+    name: 'products',
+    attributes: ['categories.lvl1'],
+    showParentLevel: false
+  }]
+});
+``
 
 ##### Asking for the current breadcrumb
 
