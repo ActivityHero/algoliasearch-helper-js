@@ -9701,6 +9701,7 @@ function AlgoliaSearchHelper(client, index, options) {
   var opts = options || {};
   opts.index = index;
   this.state = SearchParameters.make(opts);
+  this.extraQueries = [];
   this.lastResults = null;
   this._queryId = 0;
   this._lastQueryIdReceived = -1;
@@ -9767,6 +9768,21 @@ AlgoliaSearchHelper.prototype.setQuery = function(q) {
 };
 
 /**
+ * Adds an extra query to the next search.
+ * @param  {string} indexName the name of the index
+ * @param  {string} query the keyword search param
+ * @param  {object} params the search params
+ * @return {AlgoliaSearchHelper}
+ * @fires change
+ */
+AlgoliaSearchHelper.prototype.addExtraQuery = function(indexName, query, params) {
+  this.extraQueries.push({
+    indexName: indexName, query: query, params: params});
+  this._change();
+  return this;
+};
+
+/**
  * Remove all refinements (disjunctive + conjunctive + hierarchical + excludes + numeric filters)
  * @param {string} [name] optional name of the facet / attribute on which we want to remove all refinements
  * @return {AlgoliaSearchHelper}
@@ -9785,6 +9801,17 @@ AlgoliaSearchHelper.prototype.clearRefinements = function(name) {
  */
 AlgoliaSearchHelper.prototype.clearTags = function() {
   this.state = this.state.clearTags();
+  this._change();
+  return this;
+};
+
+/**
+ * Remove all extra queries
+ * @return {AlgoliaSearchHelper}
+ * @fires change
+ */
+AlgoliaSearchHelper.prototype.clearExtraQueries = function() {
+  this.extraQueries = [];
   this._change();
   return this;
 };
@@ -10372,6 +10399,7 @@ AlgoliaSearchHelper.prototype.getHierarchicalFacetBreadcrumb = function(facetNam
 AlgoliaSearchHelper.prototype._search = function() {
   var state = this.state;
   var queries = requestBuilder._getQueries(state.index, state);
+  queries = queries.concat(this.extraQueries);
 
   this.emit('search', state, this.lastResults);
   this.client.search(queries,
