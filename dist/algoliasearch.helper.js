@@ -10434,7 +10434,7 @@ AlgoliaSearchHelper.prototype._handleResponse = function(state, queryId, err, co
 
   var formattedResponse = this.lastResults = new SearchResults(state, content);
 
-  this.emit('result', formattedResponse, state);
+  this.emit('result', formattedResponse, state, content);
 };
 
 AlgoliaSearchHelper.prototype.containsRefinement = function(query, facetFilters, numericFilters, tagFilters) {
