@@ -9721,6 +9721,45 @@ AlgoliaSearchHelper.prototype.search = function() {
   return this;
 };
 
+
+/**
+ * Perform the underlying queries
+ * @private
+ * @return {undefined}
+ * @fires search
+ * @fires result
+ * @fires error
+ */
+AlgoliaSearchHelper.prototype.getQueries = function() {
+  var state = this.state;
+  var queries = requestBuilder._getQueries(state.index, state);
+  queries = queries.concat(this.extraQueries);
+
+  return queries;
+};
+
+
+/**
+ * Increment and return the query id due to a batch request.
+ * @private
+ * @return {number} The query id.
+ */
+AlgoliaSearchHelper.prototype.incrementQueryIdFromBatch = function() {
+  return this._queryId++;
+};
+
+
+/**
+ * Process responses that happened in a batch (outside of the helper).
+ * @private
+ * @return {undefined}
+ * @fires result
+ * @fires error
+ */
+AlgoliaSearchHelper.prototype.processBatchResponse = function(queryId, err, content) {
+  this._handleResponse(this.state, queryId, err, content);
+};
+
 /**
  * Start a search using a modified version of the current state. This method does
  * not trigger the helper lifecycle and does not modify the state kept internally
@@ -10398,8 +10437,7 @@ AlgoliaSearchHelper.prototype.getHierarchicalFacetBreadcrumb = function(facetNam
  */
 AlgoliaSearchHelper.prototype._search = function() {
   var state = this.state;
-  var queries = requestBuilder._getQueries(state.index, state);
-  queries = queries.concat(this.extraQueries);
+  var queries = this.getQueries();
 
   this.emit('search', state, this.lastResults);
   this.client.search(queries,
